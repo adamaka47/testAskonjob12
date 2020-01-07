@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ru-RU">
+	<head>
+		<title>Самое рукописное приложение.</title>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+	</head>
+	<body class="bg-warning">
+		<div class="container pt-4">
+			<h1 class="text-center">Приложение новостей</h1>
+			<form>
+				<select class="custom-select w-25 d-block mx-auto mt-4 mt-4">
+					<option value="ru">Россия</option>
+					<option value="at">Армения</option>
+				</select>
+				<input class="form-control w-50 mx-auto mt-2" name="search" placeholder="Введите, если хотите...">
+				<button class="btn btn-secondary d-block mx-auto mt-4">Найти новость!</button>
+				<div class="spinner-border mx-auto mt-5" role="status" id="spin">
+				  <span class="sr-only">Loading...</span>
+				</div>
+
+			</form>
+			<div class="row mt-5"></div>
+		</div>
+		
+		<script>
+			
+			spin.style.display = 'none';
+			
+			document.addEventListener('DOMContentLoaded', function() {
+			
+				const content = document.querySelector('.row');
+				
+				const KEY = '68227c81cc824069b9f9b76981f8e92e';
+				const URL = 'https://newsapi.org/v2';
+				
+				const form = document.forms[0];
+				const input = form.querySelector('input');
+				const btn = form.querySelector('button');
+				form.addEventListener('submit', function(e) {
+				
+					content.innerHTML = '';
+				
+				
+					e.preventDefault();
+					
+					spin.style.display = 'block'
+					
+					
+				
+
+				
+					let selected = document.querySelector('select').value;
+				
+					let giveMeMethodsB1tch = {
+					
+						topNews(cb) {
+							
+							createMyXHR(`${URL}/top-headlines?country=${selected}&apiKey=${KEY}`, cb);
+								
+						},
+							
+						everything(cb) {
+							
+							createMyXHR(`${URL}/everything?q=${input.value}&apiKey=${KEY}`, cb);
+							
+						}
+					
+					}
+					
+					e.preventDefault();
+					
+					
+					if (!input.value.trim()) {
+						
+					
+						giveMeMethodsB1tch.topNews(renderAll)
+					
+					} else {
+					
+						giveMeMethodsB1tch.everything(renderAll)
+					
+					}
+					
+				})
+				
+				function renderAll(ex) {
+				
+					
+				
+					spin.style.display = 'none'
+				
+						
+						
+					if (!ex.articles.length) {
+						content.innerHTML = 'Ничего не найдено!'
+					} else {
+						let frag = document.createDocumentFragment();
+						frag = '';
+						ex.articles.forEach(newsItem => {
+							let post = createNew(newsItem);
+							frag += post
+						})
+						content.insertAdjacentHTML('afterbegin', frag);
+						
+					}
+				
+				}
+				
+				function createMyXHR(url, cb, method = 'GET') {
+			
+					let xhr = new XMLHttpRequest();
+					
+					xhr.open(method, url);
+					xhr.responseType = 'json';
+					
+					xhr.addEventListener('load', function(e) {
+						let data = xhr.response;
+						cb(data);
+					})
+					
+					xhr.send();
+			
+				}
+				
+				
+				function createNew({urlToImage, title, url, description}) {
+				
+					return `
+					
+					<div class="card col-md-4 my-3 bg-primary text-white offset-md-1">
+					  <img class="card-img-top" src="${urlToImage}" alt="Card image cap">
+					  <div class="card-body">
+						<h5 class="card-title">${title}</h5>
+						<p class="card-text">${description}</p>
+						<a href="${url}" target="_blank" class="btn btn-warning">В подробностях...</a>
+					  </div>
+					</div>
+					
+					`
+				
+				
+				}
+			
+			})	
+
+		</script>
+	</body>
+	
+
+
+
+</html>
